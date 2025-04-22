@@ -1,34 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:quickplay_frontend/domain/entities/video.dart';
+import 'package:quickplay_frontend/config/helpers/get_videos.dart';
+import 'package:quickplay_frontend/presentation/widgets/video_list/video_player_screen.dart';
 
 class VideoListWidget extends StatefulWidget {
   const VideoListWidget({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _VideoListWidgetState createState() => _VideoListWidgetState();
 }
 
 class _VideoListWidgetState extends State<VideoListWidget> {
+  // Inicializar 'videoListFuture' con un valor predeterminado
+  late Future<List<Video>> videoListFuture = getVideos();
+
+  @override
+  void initState() {
+    super.initState();
+    // Asignar 'getVideos()' durante la inicialización
+    videoListFuture = getVideos();
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<String> videoList = [
-      'Video 1',
-      'Video 2',
-      'Video 3',
-      'Video 4',
-      'Video 5',
-    ];
+    String route = "https://1ca0-31-221-147-242.ngrok-free.app/videos/";
 
-    return ListView.builder(
-      itemCount: videoList.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Center(child: Text(videoList[index])),
-          onTap: () {
-            // Handle video tap
-            print('Tapped on ${videoList[index]}');
-          },
-        );
+    return FutureBuilder<List<Video>>(
+      future: videoListFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          final videoList = snapshot.data!;
+          return ListView.builder(
+            itemCount: videoList.length,
+            itemBuilder: (context, index) {
+              final video = videoList[index];
+              String completeRoute = route + video.name;
+              return VideoPlayerScreen(url: completeRoute);
+            },
+          );
+        } else {
+          return const Center(child: Text('No hay videos disponibles.'));
+        }
       },
     );
   }
