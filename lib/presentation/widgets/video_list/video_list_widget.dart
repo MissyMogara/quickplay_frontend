@@ -23,7 +23,8 @@ class _VideoListWidgetState extends State<VideoListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    String route = "https://1ca0-31-221-147-242.ngrok-free.app/videos/";
+    String route = "https://145d-31-221-187-207.ngrok-free.app/api/videos/";
+    print("VideoURL: " + route);
 
     return FutureBuilder<List<Video>>(
       future: videoListFuture,
